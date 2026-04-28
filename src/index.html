@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OpenClaw v2 - Vultr Powered</title>
+  <title>OpenClaw v2</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: -apple-system, system-ui, sans-serif; padding: 15px; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-    #chatBox { flex: 1; background: white; border-radius: 12px; overflow-y: auto; margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    #chatBox { flex: 1; background: white; border-radius: 12px; overflow-y: auto; margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; }
     .input-group { display: flex; gap: 8px; padding-bottom: env(safe-area-inset-bottom); }
     input { flex: 1; padding: 14px; border: 1px solid #ccc; border-radius: 10px; outline: none; font-size: 16px; }
-    button { padding: 0 20px; background: #007bff; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-    .msg { margin-bottom: 12px; line-height: 1.5; word-wrap: break-word; }
+    button { padding: 0 20px; background: #007bff; color: white; border: none; border-radius: 10px; font-weight: bold; }
+    .msg { margin-bottom: 12px; line-height: 1.5; }
     .ai-msg { color: #0056b3; background: #e7f3ff; padding: 10px; border-radius: 8px; }
   </style>
 </head>
@@ -22,13 +22,12 @@
     <button id="chatBtn">Gửi</button>
   </div>
 
-  <script src="capacitor.js" type="module"></script>
   <script>
     const btn = document.getElementById('chatBtn');
     const chatBox = document.getElementById('chatBox');
     const input = document.getElementById('userInput');
 
-    // --- CẤU HÌNH MỚI TỪ CADDY PROXY ---
+    // CẤU HÌNH TỪ CADDY PROXY
     const API_URL = 'http://207.148.113.141:18800/v1/chat/completions';
     const API_KEY = 'YTWFFWCDBRJHC4IPIKSEKIIA25JFHIWSRNWQ';
     const MODEL_NAME = 'zai-org/GLM-5.1-FP8'; 
@@ -39,15 +38,20 @@
         
         chatBox.innerHTML += `<div class="msg"><b>🧑 Bạn:</b> ${text}</div>`;
         input.value = '';
-        chatBox.innerHTML += `<div id="loading" style="color: gray;"><i>⚡ Đang lấy data từ Vultr...</i></div>`;
+        chatBox.innerHTML += `<div id="loading" style="color: gray;"><i>⚡ Đang kết nối Vultr...</i></div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try {
+            // Kiểm tra xem Capacitor có sẵn sàng không
+            if (!window.Capacitor || !window.Capacitor.Plugins.CapacitorHttp) {
+                throw new Error("Capacitor chưa sẵn sàng hoặc không chạy trên iPhone");
+            }
+
             const options = {
                 url: API_URL,
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}` // Thêm mã bảo mật
+                    'Authorization': `Bearer ${API_KEY}`
                 },
                 data: {
                     model: MODEL_NAME,
@@ -68,7 +72,7 @@
             
         } catch (error) {
             if (document.getElementById('loading')) document.getElementById('loading').remove();
-            alert("⚠️ Lỗi kết nối: " + JSON.stringify(error));
+            alert("⚠️ Lỗi: " + error.message);
         }
         chatBox.scrollTop = chatBox.scrollHeight;
     });
