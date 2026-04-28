@@ -11,12 +11,12 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v4 # Cập nhật v4
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4 # Cập nhật v4
+        uses: actions/setup-node@v4
         with:
-          node-version: '20' # Dùng bản Node mới cho ổn định
+          node-version: '22' # Đã nâng lên bản 22 để khớp với Capacitor 8
 
       - name: Cài đặt thư viện & Đồng bộ iOS
         run: |
@@ -35,7 +35,7 @@ jobs:
           zip -r OpenClaw.ipa Payload
 
       - name: Trả kết quả file IPA
-        uses: actions/upload-artifact@v4 # ĐÂY LÀ CHỖ QUAN TRỌNG NHẤT
+        uses: actions/upload-artifact@v4
         with:
           name: OpenClaw-TrollStore
           path: OpenClaw.ipa
