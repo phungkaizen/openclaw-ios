@@ -3,63 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OpenClaw Chat - Trưởng Xóm</title>
+  <title>OpenClaw v2 - Vultr Powered</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 15px; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-    h2 { text-align: center; color: #1c1e21; font-size: 1.2rem; margin: 10px 0; }
-    #chatBox { flex: 1; background: white; border-radius: 12px; overflow-y: auto; margin-bottom: 15px; padding: 15px; shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #ddd; }
+    body { font-family: -apple-system, system-ui, sans-serif; padding: 15px; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+    #chatBox { flex: 1; background: white; border-radius: 12px; overflow-y: auto; margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .input-group { display: flex; gap: 8px; padding-bottom: env(safe-area-inset-bottom); }
     input { flex: 1; padding: 14px; border: 1px solid #ccc; border-radius: 10px; outline: none; font-size: 16px; }
-    button { padding: 0 20px; background: #007bff; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    button:active { background: #0056b3; transform: scale(0.98); }
-    .msg { margin-bottom: 12px; line-height: 1.5; }
-    .user-msg { color: #1c1e21; }
+    button { padding: 0 20px; background: #007bff; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+    .msg { margin-bottom: 12px; line-height: 1.5; word-wrap: break-word; }
     .ai-msg { color: #0056b3; background: #e7f3ff; padding: 10px; border-radius: 8px; }
   </style>
 </head>
 <body>
-  <h2>🤖 Hệ thống OpenClaw</h2>
   <div id="chatBox"></div>
   <div class="input-group">
-    <input type="text" id="userInput" placeholder="Hỏi OpenClaw gì đi...">
+    <input type="text" id="userInput" placeholder="Hỏi gì đi Trưởng Xóm...">
     <button id="chatBtn">Gửi</button>
   </div>
 
-  <!-- Script quan trọng để kết nối với hệ thống iPhone -->
-  <script src="capacitor.js type="module""></script>
+  <script src="capacitor.js" type="module"></script>
   <script>
     const btn = document.getElementById('chatBtn');
     const chatBox = document.getElementById('chatBox');
     const input = document.getElementById('userInput');
 
-    // Địa chỉ VPS đã được cấu hình từ tin nhắn của bạn
-    const OPENCLAW_API_URL = 'http://207.148.113.141:18789/v1/chat/completions'; 
+    // --- CẤU HÌNH MỚI TỪ CADDY PROXY ---
+    const API_URL = 'http://207.148.113.141:18800/v1/chat/completions';
+    const API_KEY = 'YTWFFWCDBRJHC4IPIKSEKIIA25JFHIWSRNWQ';
+    const MODEL_NAME = 'zai-org/GLM-5.1-FP8'; 
 
     btn.addEventListener('click', async () => {
         const text = input.value.trim();
         if (!text) return;
         
-        // Hiển thị tin nhắn người dùng
-        chatBox.innerHTML += `<div class="msg user-msg"><b>🧑 Bạn:</b> ${text}</div>`;
+        chatBox.innerHTML += `<div class="msg"><b>🧑 Bạn:</b> ${text}</div>`;
         input.value = '';
-        chatBox.innerHTML += `<div id="loading" style="color: gray; font-size: 0.9rem;"><i>⚡ Đang gửi tới VPS...</i></div>`;
+        chatBox.innerHTML += `<div id="loading" style="color: gray;"><i>⚡ Đang lấy data từ Vultr...</i></div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try {
-            // Dùng CapacitorHttp thay cho fetch để vượt qua chặn IP của Apple
             const options = {
-                url: OPENCLAW_API_URL,
-                headers: { 'Content-Type': 'application/json' },
-                data: {
-                    model: "openclaw", 
-                    messages: [{ role: "user", content: text }]
+                url: API_URL,
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}` // Thêm mã bảo mật
                 },
-                connectTimeout: 10000,
-                readTimeout: 10000
+                data: {
+                    model: MODEL_NAME,
+                    messages: [{ role: "user", content: text }]
+                }
             };
 
-            // Gọi plugin hệ thống
             const response = await window.Capacitor.Plugins.CapacitorHttp.post(options);
             
             if (document.getElementById('loading')) document.getElementById('loading').remove();
@@ -68,19 +63,15 @@
                 const reply = response.data.choices[0].message.content;
                 chatBox.innerHTML += `<div class="msg ai-msg"><b>🤖 OpenClaw:</b> ${reply}</div>`;
             } else {
-                alert("Lỗi phản hồi từ VPS: " + response.status);
+                alert("Lỗi VPS (" + response.status + "): " + JSON.stringify(response.data));
             }
             
         } catch (error) {
             if (document.getElementById('loading')) document.getElementById('loading').remove();
-            // Hiện bảng lỗi để debug thực tế trên iPhone
-            alert("⚠️ Lỗi kết nối VPS: " + JSON.stringify(error));
+            alert("⚠️ Lỗi kết nối: " + JSON.stringify(error));
         }
         chatBox.scrollTop = chatBox.scrollHeight;
     });
-
-    // Tự động focus vào ô nhập khi mở app
-    input.focus();
   </script>
 </body>
 </html>
