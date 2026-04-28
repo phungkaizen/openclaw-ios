@@ -1,0 +1,13 @@
+{
+  "appId": "com.chat.openclaw",
+  "appName": "com.chat.openclaw",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false
+    }
+  },
+  "server": {
+    "cleartext": true
+  }
+}
