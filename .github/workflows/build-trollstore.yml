@@ -16,11 +16,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Đã nâng lên bản 22 để khớp với Capacitor 8
+          node-version: '22'
 
-      - name: Cài đặt thư viện & Đồng bộ iOS
+      - name: Cài đặt & Build Giao diện & Đồng bộ
         run: |
           npm install
+          npm run build  # <--- THÊM DÒNG NÀY ĐỂ TẠO THƯ MỤC DIST TRÊN MÁY ẢO
           npx cap sync ios
 
       - name: Build file .app (Ép Unsigned)
