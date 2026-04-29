@@ -2,80 +2,114 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OpenClaw v2</title>
+  <!-- CỰC KỲ QUAN TRỌNG: viewport-fit=cover để tràn màn hình qua tai thỏ -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>OpenClaw Pro - Apple Intelligence Edition</title>
   <style>
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, system-ui, sans-serif; padding: 15px; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-    #chatBox { flex: 1; background: white; border-radius: 12px; overflow-y: auto; margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; }
-    .input-group { display: flex; gap: 8px; padding-bottom: env(safe-area-inset-bottom); }
-    input { flex: 1; padding: 14px; border: 1px solid #ccc; border-radius: 10px; outline: none; font-size: 16px; }
-    button { padding: 0 20px; background: #007bff; color: white; border: none; border-radius: 10px; font-weight: bold; }
-    .msg { margin-bottom: 12px; line-height: 1.5; }
-    .ai-msg { color: #0056b3; background: #e7f3ff; padding: 10px; border-radius: 8px; }
+    :root {
+      --apple-blue: #007AFF;
+      --system-bg: #F2F2F7;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+
+    body, html {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background-color: var(--system-bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      overflow: hidden; /* Không cho scroll cả trang chính để tránh bị văng */
+    }
+
+    /* Header phong cách Apple: Kính mờ (Blur) */
+    .header {
+      position: fixed;
+      top: 0; width: 100%;
+      /* Xử lý tai thỏ bằng Safe Area Inset */
+      padding-top: env(safe-area-inset-top); 
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid rgba(0,0,0,0.1);
+      z-index: 100;
+      text-align: center;
+    }
+
+    .header-content {
+      height: 44px; /* Độ cao chuẩn của thanh Header iOS */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 17px;
+      color: #000;
+      letter-spacing: -0.4px;
+    }
+
+    /* Khung chứa nội dung OpenClaw */
+    .web-container {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      /* Đẩy nội dung xuống dưới Header và lên trên Home Bar */
+      padding-top: calc(44px + env(safe-area-inset-top));
+      padding-bottom: env(safe-area-inset-bottom);
+      
+      /* GIÚP CUỘN MƯỢT NHƯ APP GỐC */
+      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      /* Bo góc nhẹ cho phần web nhìn cho xịn xò */
+      border-radius: 20px 20px 0 0; 
+      background: white;
+      display: block; /* Đảm bảo không bị khoảng trắng dư thừa */
+    }
+
+    /* Thanh trạng thái nhỏ dưới cùng (Home Bar area) */
+    .footer-bar {
+      position: fixed;
+      bottom: 0; width: 100%;
+      height: env(safe-area-inset-bottom);
+      background: white;
+      z-index: 100;
+    }
   </style>
 </head>
 <body>
-  <div id="chatBox"></div>
-  <div class="input-group">
-    <input type="text" id="userInput" placeholder="Hỏi gì đi Trưởng Xóm...">
-    <button id="chatBtn">Gửi</button>
-  </div>
 
-  <script>
-    const btn = document.getElementById('chatBtn');
-    const chatBox = document.getElementById('chatBox');
-    const input = document.getElementById('userInput');
+  <header class="header">
+    <div class="header-content">
+      <span> OpenClaw Intelligence</span>
+    </div>
+  </header>
 
-    // CẤU HÌNH TỪ CADDY PROXY
-    const API_URL = 'http://207.148.113.141:18800/v1/chat/completions';
-    const API_KEY = 'YTWFFWCDBRJHC4IPIKSEKIIA25JFHIWSRNWQ';
-    const MODEL_NAME = 'zai-org/GLM-5.1-FP8'; 
+  <main class="web-container">
+    <!-- Nhúng giao diện Websocket gốc của bạn vào đây -->
+    <iframe 
+      src="http://207.148.113.141:18789" 
+      allow="clipboard-read; clipboard-write"
+      id="openclaw-frame">
+    </iframe>
+  </main>
 
-    btn.addEventListener('click', async () => {
-        const text = input.value.trim();
-        if (!text) return;
-        
-        chatBox.innerHTML += `<div class="msg"><b>🧑 Bạn:</b> ${text}</div>`;
-        input.value = '';
-        chatBox.innerHTML += `<div id="loading" style="color: gray;"><i>⚡ Đang kết nối Vultr...</i></div>`;
-        chatBox.scrollTop = chatBox.scrollHeight;
+  <div class="footer-bar"></div>
 
-        try {
-            // Kiểm tra xem Capacitor có sẵn sàng không
-            if (!window.Capacitor || !window.Capacitor.Plugins.CapacitorHttp) {
-                throw new Error("Capacitor chưa sẵn sàng hoặc không chạy trên iPhone");
-            }
-
-            const options = {
-                url: API_URL,
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`
-                },
-                data: {
-                    model: MODEL_NAME,
-                    messages: [{ role: "user", content: text }]
-                }
-            };
-
-            const response = await window.Capacitor.Plugins.CapacitorHttp.post(options);
-            
-            if (document.getElementById('loading')) document.getElementById('loading').remove();
-
-            if (response.status === 200) {
-                const reply = response.data.choices[0].message.content;
-                chatBox.innerHTML += `<div class="msg ai-msg"><b>🤖 OpenClaw:</b> ${reply}</div>`;
-            } else {
-                alert("Lỗi VPS (" + response.status + "): " + JSON.stringify(response.data));
-            }
-            
-        } catch (error) {
-            if (document.getElementById('loading')) document.getElementById('loading').remove();
-            alert("⚠️ Lỗi: " + error.message);
-        }
-        chatBox.scrollTop = chatBox.scrollHeight;
+  <!-- Tự động ẩn Splash Screen khi web sẵn sàng -->
+  <script type="module">
+    window.addEventListener('load', () => {
+      // Đợi 1s cho mượt rồi ẩn loading (nếu có plugin splash)
+      if (window.Capacitor) {
+        window.Capacitor.Plugins.SplashScreen.hide();
+      }
     });
   </script>
+
 </body>
 </html>

@@ -1,14 +1,17 @@
 {
   "appId": "com.chat.openclaw",
-  "appName": "com.chat.openclaw",
+  "appName": "OpenClaw Pro",
   "webDir": "dist",
-  "plugins": {
-    "SplashScreen": {
-      "launchAutoHide": true,
-      "launchShowDuration": 1000
-    }
-  },
   "server": {
     "cleartext": true
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "DARK"
+    },
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "backgroundColor": "#F2F2F7"
+    }
   }
 }
