@@ -3,8 +3,8 @@
   "appName": "OpenClaw Pro",
   "webDir": "dist",
   "server": {
-    "cleartext": true,
-    "allowNavigation": ["*"]
+    "url": "https://tom.aitudong.click",
+    "cleartext": true
   },
   "plugins": {
     "StatusBar": {
@@ -12,7 +12,8 @@
     },
     "SplashScreen": {
       "launchAutoHide": true,
-      "backgroundColor": "#F2F2F7"
+      "backgroundColor": "#F2F2F7",
+      "launchShowDuration": 2000
     }
   }
 }
