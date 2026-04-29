@@ -4,10 +4,7 @@
   "webDir": "dist",
   "server": {
     "cleartext": true,
-    "allowNavigation": [
-      "207.148.113.141",
-      "207.148.113.141:18789"
-    ]
+    "allowNavigation": ["*"]
   },
   "plugins": {
     "StatusBar": {

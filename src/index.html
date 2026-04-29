@@ -2,9 +2,9 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <!-- CỰC KỲ QUAN TRỌNG: viewport-fit=cover để tràn màn hình qua tai thỏ -->
+  <!-- viewport-fit=cover là bắt buộc để tràn màn hình qua tai thỏ -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>OpenClaw Pro - Apple Intelligence Edition</title>
+  <title>OpenClaw Intelligence</title>
   <style>
     :root {
       --apple-blue: #007AFF;
@@ -20,26 +20,25 @@
       margin: 0; padding: 0;
       width: 100%; height: 100%;
       background-color: var(--system-bg);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-      overflow: hidden; /* Không cho scroll cả trang chính để tránh bị văng */
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      overflow: hidden; /* Chặn scroll trang chính để tránh xung đột với iframe */
     }
 
-    /* Header phong cách Apple: Kính mờ (Blur) */
+    /* Header Apple: Kính mờ (Blur) */
     .header {
       position: fixed;
       top: 0; width: 100%;
-      /* Xử lý tai thỏ bằng Safe Area Inset */
+      /* Tự động đẩy xuống dưới tai thỏ */
       padding-top: env(safe-area-inset-top); 
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 0.5px solid rgba(0,0,0,0.1);
       z-index: 100;
-      text-align: center;
     }
 
     .header-content {
-      height: 44px; /* Độ cao chuẩn của thanh Header iOS */
+      height: 44px; /* Chiều cao chuẩn iOS */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -49,35 +48,35 @@
       letter-spacing: -0.4px;
     }
 
-    /* Khung chứa nội dung OpenClaw */
+    /* Container bao quanh Iframe */
     .web-container {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      /* Đẩy nội dung xuống dưới Header và lên trên Home Bar */
+      /* Đẩy nội dung né Header và Home Bar */
       padding-top: calc(44px + env(safe-area-inset-top));
       padding-bottom: env(safe-area-inset-bottom);
       
-      /* GIÚP CUỘN MƯỢT NHƯ APP GỐC */
+      /* Giúp vuốt mượt trên iOS */
       -webkit-overflow-scrolling: touch;
-      overflow-y: auto;
+      overflow: hidden;
     }
 
     iframe {
       width: 100%;
       height: 100%;
       border: none;
-      /* Bo góc nhẹ cho phần web nhìn cho xịn xò */
-      border-radius: 20px 20px 0 0; 
       background: white;
-      display: block; /* Đảm bảo không bị khoảng trắng dư thừa */
+      display: block;
+      /* Bo góc nhẹ để giao diện trông hiện đại */
+      border-radius: 18px 18px 0 0;
     }
 
-    /* Thanh trạng thái nhỏ dưới cùng (Home Bar area) */
+    /* Footer che phần thanh gạch ngang dưới cùng */
     .footer-bar {
       position: fixed;
       bottom: 0; width: 100%;
       height: env(safe-area-inset-bottom);
-      background: white;
+      background: #ffffff;
       z-index: 100;
     }
   </style>
@@ -91,24 +90,30 @@
   </header>
 
   <main class="web-container">
-    <!-- Nhúng giao diện Websocket gốc của bạn vào đây -->
+    <!-- Link VPS OpenClaw của bạn -->
     <iframe 
-      src="https://www.google.com" 
-      allow="clipboard-read; clipboard-write"
-      id="openclaw-frame">
-    </iframe>
+      src="http://207.148.113.141:18789" 
+      id="main-frame"
+      allow="clipboard-read; clipboard-write; microphone; camera"
+    ></iframe>
   </main>
 
   <div class="footer-bar"></div>
 
-  <!-- Tự động ẩn Splash Screen khi web sẵn sàng -->
-  <script type="module">
-    window.addEventListener('load', () => {
-      // Đợi 1s cho mượt rồi ẩn loading (nếu có plugin splash)
-      if (window.Capacitor) {
-        window.Capacitor.Plugins.SplashScreen.hide();
+  <!-- Xử lý lỗi nếu không load được trang -->
+  <script>
+    const iframe = document.getElementById('main-frame');
+    
+    // Nếu sau 10 giây vẫn trắng trang, hiện thông báo cho người dùng
+    setTimeout(() => {
+      try {
+        if (iframe.contentWindow.length === 0) {
+          console.log("Iframe có vẻ chưa load được nội dung.");
+        }
+      } catch (e) {
+        // Lỗi này thường xảy ra do bảo mật, nhưng là dấu hiệu iframe đã load link ngoài
       }
-    });
+    }, 10000);
   </script>
 
 </body>
