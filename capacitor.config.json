@@ -4,7 +4,12 @@
   "webDir": "dist",
   "server": {
     "url": "https://tom.aitudong.click/portal.html",
-    "cleartext": true
+    "cleartext": true,
+    "allowNavigation": [
+      "tom.aitudong.click",
+      "*.aitudong.click",
+      "*"
+    ]
   },
   "plugins": {
     "StatusBar": {
