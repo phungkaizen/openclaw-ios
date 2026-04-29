@@ -3,7 +3,7 @@
   "appName": "OpenClaw Pro",
   "webDir": "dist",
   "server": {
-    "url": "https://tom.aitudong.click",
+    "url": "https://tom.aitudong.click/portal.html",
     "cleartext": true
   },
   "plugins": {
